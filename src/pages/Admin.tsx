@@ -13,14 +13,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DepartmentList } from "@/components/DepartmentList";
 import { DatabasePanel } from "@/components/DatabasePanel";
 import { UsersPanel } from "@/components/UsersPanel";
 import { toast } from "sonner";
 
+// Mock dept types for type selection
+const departmentTypes = [
+  { id: "ug", name: "Undergraduate (8 Semesters)" },
+  { id: "pg", name: "Postgraduate (4 Semesters)" },
+  { id: "mtech", name: "M.Tech (10 Semesters)" },
+];
+
 const Admin = () => {
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const [newDepartmentCode, setNewDepartmentCode] = useState("");
+  const [newDepartmentType, setNewDepartmentType] = useState("ug");
   const [isAddingDepartment, setIsAddingDepartment] = useState(false);
   
   const handleAddDepartment = () => {
@@ -30,12 +39,31 @@ const Admin = () => {
     }
     
     // In a real application, this would save to a database
-    console.log("Adding department:", { name: newDepartmentName, code: newDepartmentCode });
+    console.log("Adding department:", { 
+      name: newDepartmentName, 
+      code: newDepartmentCode,
+      type: newDepartmentType
+    });
+    
+    // Dispatch an event to update the DepartmentList component
+    const event = new CustomEvent("departmentAdded", {
+      detail: {
+        id: Date.now(),
+        name: newDepartmentName,
+        code: newDepartmentCode,
+        type: newDepartmentType,
+        students: 0,
+        subjects: 0
+      }
+    });
+    document.dispatchEvent(event);
+    
     toast.success(`Department "${newDepartmentName}" added successfully`);
     
     // Reset form
     setNewDepartmentName("");
     setNewDepartmentCode("");
+    setNewDepartmentType("ug");
     setIsAddingDepartment(false);
   };
 
@@ -84,15 +112,21 @@ const Admin = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="dept-type">Department Type</Label>
-                      <select 
-                        id="dept-type"
-                        className="w-full px-3 py-2 border rounded-md"
-                        defaultValue="ug"
+                      <Select 
+                        value={newDepartmentType}
+                        onValueChange={setNewDepartmentType}
                       >
-                        <option value="ug">Undergraduate (8 Semesters)</option>
-                        <option value="pg">Postgraduate (4 Semesters)</option>
-                        <option value="mtech">M.Tech (10 Semesters)</option>
-                      </select>
+                        <SelectTrigger id="dept-type">
+                          <SelectValue placeholder="Select Department Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departmentTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button onClick={handleAddDepartment} className="w-full">Create Department</Button>
                   </div>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Card, 
   CardContent,
@@ -19,11 +19,29 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Pencil, Trash2, FileText, Users } from "lucide-react";
+import { Pencil, Trash2, FileText, Users, Database } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
+// Department types for edit dialog
+const departmentTypes = [
+  { id: "ug", name: "Undergraduate (8 Semesters)" },
+  { id: "pg", name: "Postgraduate (4 Semesters)" },
+  { id: "mtech", name: "M.Tech (10 Semesters)" },
+];
+
+// Department interface
+interface Department {
+  id: number;
+  name: string;
+  code: string;
+  type: string;
+  students: number;
+  subjects: number;
+}
+
 // Mocked department data - in a real app this would come from the database
-const mockDepartments = [
+const mockDepartments: Department[] = [
   { id: 1, name: "Computer Science", code: "CS", type: "ug", students: 120, subjects: 42 },
   { id: 2, name: "Mechanical Engineering", code: "ME", type: "ug", students: 150, subjects: 38 },
   { id: 3, name: "Electrical Engineering", code: "EE", type: "ug", students: 135, subjects: 40 },
@@ -33,10 +51,23 @@ const mockDepartments = [
 
 export const DepartmentList = () => {
   const [departments, setDepartments] = useState(mockDepartments);
-  const [editingDepartment, setEditingDepartment] = useState<{id: number, name: string, code: string} | null>(null);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  // Listen for department added events
+  useEffect(() => {
+    const handleDepartmentAdded = (event: CustomEvent<Department>) => {
+      setDepartments(prev => [...prev, event.detail]);
+    };
+    
+    document.addEventListener("departmentAdded", handleDepartmentAdded as EventListener);
+    
+    return () => {
+      document.removeEventListener("departmentAdded", handleDepartmentAdded as EventListener);
+    };
+  }, []);
 
-  const handleEditDepartment = (dept: {id: number, name: string, code: string}) => {
+  const handleEditDepartment = (dept: Department) => {
     setEditingDepartment(dept);
     setIsEditDialogOpen(true);
   };
@@ -48,6 +79,7 @@ export const DepartmentList = () => {
       ));
       toast.success(`Department "${editingDepartment.name}" updated successfully`);
       setIsEditDialogOpen(false);
+      setEditingDepartment(null);
     }
   };
 
@@ -56,6 +88,18 @@ export const DepartmentList = () => {
       setDepartments(departments.filter(d => d.id !== id));
       toast.success(`Department "${name}" deleted successfully`);
     }
+  };
+
+  const handleViewStudentDatabase = (dept: Department) => {
+    // This would typically navigate to a student database view or open a modal
+    toast.info(`Viewing student database for ${dept.name}`);
+    console.log("Viewing student database for department:", dept);
+  };
+
+  const handleManageSubjects = (dept: Department) => {
+    // This would typically navigate to a subject management view or open a modal
+    toast.info(`Managing subjects for ${dept.name}`);
+    console.log("Managing subjects for department:", dept);
   };
 
   const getDepartmentTypeLabel = (type: string) => {
@@ -109,8 +153,20 @@ export const DepartmentList = () => {
           </CardContent>
           <CardFooter className="pt-2">
             <div className="flex space-x-2 w-full">
-              <Button variant="outline" className="flex-1">View Student Database</Button>
-              <Button variant="outline" className="flex-1">Manage Subjects</Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => handleViewStudentDatabase(dept)}
+              >
+                <Database className="h-4 w-4 mr-2" /> View Student Database
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => handleManageSubjects(dept)}
+              >
+                <FileText className="h-4 w-4 mr-2" /> Manage Subjects
+              </Button>
             </div>
           </CardFooter>
         </Card>
@@ -143,6 +199,24 @@ export const DepartmentList = () => {
                 value={editingDepartment?.code || ""} 
                 onChange={(e) => editingDepartment && setEditingDepartment({...editingDepartment, code: e.target.value})}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-dept-type">Department Type</Label>
+              <Select 
+                value={editingDepartment?.type || ""}
+                onValueChange={(value) => editingDepartment && setEditingDepartment({...editingDepartment, type: value})}
+              >
+                <SelectTrigger id="edit-dept-type">
+                  <SelectValue placeholder="Select Department Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departmentTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
