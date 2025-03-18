@@ -19,6 +19,9 @@ export const Header = () => {
               <Button variant="outline" onClick={() => navigate("/admin")}>
                 Admin Panel
               </Button>
+              <Button variant="outline" onClick={() => navigate("/login")}>
+                Login
+              </Button>
             </nav>
             <ThemeToggle />
           </div>
