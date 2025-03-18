@@ -10,6 +10,7 @@ import CreatePattern from "./pages/CreatePattern";
 import MarkEntry from "./pages/MarkEntry";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/create-pattern" element={<CreatePattern />} />
             <Route path="/mark-entry" element={<MarkEntry />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
