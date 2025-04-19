@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -42,31 +41,7 @@ const mockUsers: User[] = [
     role: "admin", 
     department: "all",
     lastActive: "2023-09-15T10:30:00"
-  },
-  { 
-    id: 2, 
-    name: "CS Department Head", 
-    email: "cshead@example.com", 
-    role: "department_admin", 
-    department: "CS",
-    lastActive: "2023-09-14T14:45:00"
-  },
-  { 
-    id: 3, 
-    name: "ME Department Head", 
-    email: "mehead@example.com", 
-    role: "department_admin", 
-    department: "ME",
-    lastActive: "2023-09-13T09:15:00"
-  },
-  { 
-    id: 4, 
-    name: "Faculty User", 
-    email: "faculty@example.com", 
-    role: "staff", 
-    department: "CS",
-    lastActive: "2023-09-12T16:20:00"
-  },
+  }
 ];
 
 const mockDepartments = [
