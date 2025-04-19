@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Card, 
@@ -19,8 +20,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Trash2, UserPlus, Lock, Shield, UserCog, RefreshCw } from "lucide-react";
+import { Pencil, Trash2, UserPlus, Lock, Shield, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // User interface
 interface User {
@@ -41,6 +43,14 @@ const mockUsers: User[] = [
     role: "admin", 
     department: "all",
     lastActive: "2023-09-15T10:30:00"
+  },
+  {
+    id: 2,
+    name: "Staff User",
+    email: "user@example.com",
+    role: "staff",
+    department: "CS",
+    lastActive: "2023-09-16T09:15:00"
   }
 ];
 
@@ -78,7 +88,9 @@ export const UsersPanel = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [managingPermissionsUser, setManagingPermissionsUser] = useState<User | null>(null);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("all");
 
+  // Handle add user
   const handleAddUser = () => {
     // Simple validation
     if (!newUser.name || !newUser.email || !newUser.role || !newUser.department) {
@@ -241,10 +253,20 @@ export const UsersPanel = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
+  // Filter users based on active tab
+  const filteredUsers = activeTab === "all" 
+    ? users 
+    : users.filter(user => user.role === activeTab);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">User Management</h2>
+        <div>
+          <h2 className="text-xl font-semibold">User Management</h2>
+          <p className="text-muted-foreground">
+            Manage users and their permissions. Staff subject assignments are managed in the Staff Assignments tab.
+          </p>
+        </div>
         <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
           <DialogTrigger asChild>
             <Button>
@@ -337,7 +359,15 @@ export const UsersPanel = () => {
         </Dialog>
       </div>
       
-      {users.map((user) => (
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
+        <TabsList>
+          <TabsTrigger value="all">All Users</TabsTrigger>
+          <TabsTrigger value="admin">Admins</TabsTrigger>
+          <TabsTrigger value="staff">Staff</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      
+      {filteredUsers.map((user) => (
         <Card key={user.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="pb-2">
             <div className="flex justify-between items-center">
@@ -586,7 +616,7 @@ export const UsersPanel = () => {
         </DialogContent>
       </Dialog>
       
-      {users.length === 0 && (
+      {filteredUsers.length === 0 && (
         <div className="text-center py-8 text-gray-500">
           <p>No users found. Add your first user to get started.</p>
         </div>
