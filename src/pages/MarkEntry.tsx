@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,10 +118,8 @@ const MarkEntry = () => {
   const handleBack = () => {
     if (isAdmin) {
       setStep(1);
-    } else {
-      // For staff users, we don't go back to step 1 since it's skipped
-      // Could implement other back action here if needed
     }
+    // For staff users, we don't have a back action since step 1 is skipped
   };
 
   return (
