@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Register = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +25,11 @@ const Register = () => {
     
     setIsLoading(true);
     
-    // This is a mock registration - in a real app, you would register with a backend
+    // TODO: Implement proper user registration with a database
+    // Recommended: Set up a Supabase project and use their Auth service
+    // 1. Create a users table with username and password fields
+    // 2. Add Row Level Security (RLS) policies
+    // 3. Use Supabase Auth methods for secure registration
     setTimeout(() => {
       setIsLoading(false);
       toast.success("Registration successful");
@@ -44,14 +48,14 @@ const Register = () => {
           <CardContent>
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
+                  id="username" 
+                  type="text" 
+                  placeholder="Choose a username" 
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
               <div className="space-y-2">

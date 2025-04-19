@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -18,11 +18,13 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // This is a mock login - in a real app, you would authenticate with a backend
+    // TODO: Replace this mock authentication with a proper database connection
+    // Recommended: Use Supabase Auth with a users table for authentication
+    // You can find more information in the Supabase documentation
     setTimeout(() => {
       setIsLoading(false);
       
-      if (email === "admin@example.com" && password === "password") {
+      if (username === "admin" && password === "admin") {
         toast.success("Login successful");
         navigate("/admin");
       } else {
@@ -42,14 +44,14 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Username</Label>
                 <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
+                  id="username" 
+                  type="text" 
+                  placeholder="admin" 
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
