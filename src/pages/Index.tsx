@@ -1,23 +1,43 @@
 
 import { Header } from "@/components/Header";
 import { DashboardCard } from "@/components/DashboardCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  // Get current authenticated user
+  const { user } = useAuth();
+  
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      <main className="container mx-auto px-4 py-8 flex items-center justify-center h-[calc(100vh-64px)]">
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-md">
+            Logged in as: <span className="font-bold">{user?.username}</span>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
           <DashboardCard
-            title="Question Pattern Creation"
-            description="Create and manage question patterns with Course Outcomes mapping"
-            route="/create-pattern"
-          />
-          <DashboardCard
-            title="Mark Entry System"
-            description="Enter marks using anonymous student identifiers"
+            title="Mark Entry"
+            description="Enter marks for students per subject and generate reports"
             route="/mark-entry"
           />
+          
+          <DashboardCard
+            title="Create Question Pattern"
+            description="Create and manage question patterns for departments"
+            route="/create-pattern"
+          />
+          
+          {user?.role === "admin" && (
+            <DashboardCard
+              title="Admin Panel"
+              description="Manage departments, users, and database operations"
+              route="/admin"
+            />
+          )}
         </div>
       </main>
     </div>

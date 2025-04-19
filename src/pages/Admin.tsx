@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DepartmentList } from "@/components/DepartmentList";
 import { DatabasePanel } from "@/components/DatabasePanel";
 import { UsersPanel } from "@/components/UsersPanel";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 // Mock dept types for type selection
@@ -27,11 +28,18 @@ const departmentTypes = [
 ];
 
 const Admin = () => {
+  // Get current authenticated user
+  const { user } = useAuth();
+  
   const [newDepartmentName, setNewDepartmentName] = useState("");
   const [newDepartmentCode, setNewDepartmentCode] = useState("");
   const [newDepartmentType, setNewDepartmentType] = useState("ug");
   const [isAddingDepartment, setIsAddingDepartment] = useState(false);
   
+  /**
+   * Handles adding a new department
+   * In a real app, this would save to a database
+   */
   const handleAddDepartment = () => {
     if (!newDepartmentName || !newDepartmentCode) {
       toast.error("Department name and code are required");
@@ -68,10 +76,15 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-md">
+            Logged in as: <span className="font-bold">{user?.username}</span>
+          </div>
+        </div>
         
         <Tabs defaultValue="departments" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-8">
@@ -128,7 +141,14 @@ const Admin = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <Button onClick={handleAddDepartment} className="w-full">Create Department</Button>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsAddingDepartment(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddDepartment}>
+                      Add Department
+                    </Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -137,11 +157,11 @@ const Admin = () => {
             <DepartmentList />
           </TabsContent>
           
-          <TabsContent value="database" className="space-y-4">
+          <TabsContent value="database">
             <DatabasePanel />
           </TabsContent>
           
-          <TabsContent value="users" className="space-y-4">
+          <TabsContent value="users">
             <UsersPanel />
           </TabsContent>
         </Tabs>

@@ -39,7 +39,7 @@ const departmentTypes = [
   { id: "mtech", name: "M.Tech (10 Semesters)" },
 ];
 
-// Department interface
+// Department interface - defines the structure of a department
 interface Department {
   id: number;
   name: string;
@@ -49,7 +49,7 @@ interface Department {
   subjects: number;
 }
 
-// Student interface
+// Student interface - defines the structure of a student record
 interface Student {
   id: string;
   name: string;
@@ -58,7 +58,7 @@ interface Student {
   phone?: string;
 }
 
-// Subject interface
+// Subject interface - defines the structure of a subject
 interface Subject {
   id: number;
   code: string;
@@ -68,7 +68,8 @@ interface Subject {
   description?: string;
 }
 
-// Mock student data
+// Function to generate mock student data for a department
+// In a real application, this would come from a database
 const generateStudents = (dept: Department): Student[] => {
   const students: Student[] = [];
   const totalStudents = dept.students || 20;
@@ -88,7 +89,8 @@ const generateStudents = (dept: Department): Student[] => {
   return students;
 };
 
-// Mock subject data
+// Function to generate mock subject data for a department
+// In a real application, this would come from a database
 const generateSubjects = (dept: Department): Subject[] => {
   const subjects: Subject[] = [];
   const totalSubjects = dept.subjects || 10;
@@ -108,16 +110,12 @@ const generateSubjects = (dept: Department): Subject[] => {
   return subjects;
 };
 
-// Mocked department data - in a real app this would come from the database
-const mockDepartments: Department[] = [
-  { id: 1, name: "Computer Science", code: "CS", type: "ug", students: 120, subjects: 42 },
-  { id: 2, name: "Mechanical Engineering", code: "ME", type: "ug", students: 150, subjects: 38 },
-  { id: 3, name: "Electrical Engineering", code: "EE", type: "ug", students: 135, subjects: 40 },
-  { id: 4, name: "Civil Engineering", code: "CE", type: "ug", students: 110, subjects: 36 },
-  { id: 5, name: "M.Tech Computer Science", code: "MCS", type: "mtech", students: 45, subjects: 20 },
-];
+// Empty departments array (previously had mock data)
+// In a real application, you would fetch this from your database
+const mockDepartments: Department[] = [];
 
 export const DepartmentList = () => {
+  // State for departments - initialized with empty array
   const [departments, setDepartments] = useState(mockDepartments);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -140,6 +138,7 @@ export const DepartmentList = () => {
   const [isEditSubjectDialogOpen, setIsEditSubjectDialogOpen] = useState(false);
   
   // Listen for department added events
+  // This allows other components to add departments without props drilling
   useEffect(() => {
     const handleDepartmentAdded = (event: CustomEvent<Department>) => {
       setDepartments(prev => [...prev, event.detail]);
@@ -152,11 +151,13 @@ export const DepartmentList = () => {
     };
   }, []);
 
+  // Function to handle department edit
   const handleEditDepartment = (dept: Department) => {
     setEditingDepartment(dept);
     setIsEditDialogOpen(true);
   };
 
+  // Function to save department edit
   const handleSaveEdit = () => {
     if (editingDepartment) {
       setDepartments(departments.map(d => 
@@ -168,6 +169,7 @@ export const DepartmentList = () => {
     }
   };
 
+  // Function to delete a department
   const handleDeleteDepartment = (id: number, name: string) => {
     if (confirm(`Are you sure you want to delete department "${name}"? This cannot be undone.`)) {
       setDepartments(departments.filter(d => d.id !== id));
@@ -175,6 +177,7 @@ export const DepartmentList = () => {
     }
   };
 
+  // Function to view student database for a department
   const handleViewStudentDatabase = (dept: Department) => {
     setSelectedDepartment(dept);
     const generatedStudents = generateStudents(dept);
@@ -182,6 +185,7 @@ export const DepartmentList = () => {
     setIsStudentDatabaseOpen(true);
   };
 
+  // Function to manage subjects for a department
   const handleManageSubjects = (dept: Department) => {
     setSelectedDepartment(dept);
     const generatedSubjects = generateSubjects(dept);
@@ -189,6 +193,7 @@ export const DepartmentList = () => {
     setIsSubjectsDialogOpen(true);
   };
 
+  // Function to add a new subject
   const handleAddSubject = () => {
     if (!newSubject.code || !newSubject.name) {
       toast.error("Subject code and name are required");
@@ -223,11 +228,13 @@ export const DepartmentList = () => {
     setIsAddSubjectDialogOpen(false);
   };
 
+  // Function to edit a subject
   const handleEditSubject = (subject: Subject) => {
     setEditingSubject(subject);
     setIsEditSubjectDialogOpen(true);
   };
 
+  // Function to save subject edit
   const handleSaveSubjectEdit = () => {
     if (editingSubject) {
       setSubjects(subjects.map(s => 
@@ -239,6 +246,7 @@ export const DepartmentList = () => {
     }
   };
 
+  // Function to delete a subject
   const handleDeleteSubject = (id: number, name: string) => {
     if (confirm(`Are you sure you want to delete subject "${name}"? This cannot be undone.`)) {
       setSubjects(subjects.filter(s => s.id !== id));
@@ -256,6 +264,7 @@ export const DepartmentList = () => {
     }
   };
 
+  // Function to export students to CSV
   const exportStudentsToCSV = () => {
     if (!students.length) return;
     
@@ -271,9 +280,9 @@ export const DepartmentList = () => {
     
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${selectedDepartment?.code}_students.csv`);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${selectedDepartment?.code}_students.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -281,6 +290,7 @@ export const DepartmentList = () => {
     toast.success(`Exported ${students.length} students to CSV`);
   };
 
+  // Function to export subjects to CSV
   const exportSubjectsToCSV = () => {
     if (!subjects.length) return;
     
@@ -296,9 +306,9 @@ export const DepartmentList = () => {
     
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${selectedDepartment?.code}_subjects.csv`);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${selectedDepartment?.code}_subjects.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -306,6 +316,7 @@ export const DepartmentList = () => {
     toast.success(`Exported ${subjects.length} subjects to CSV`);
   };
 
+  // Filter students based on search input
   const filteredStudents = studentFilter 
     ? students.filter(s => 
         s.id.toLowerCase().includes(studentFilter.toLowerCase()) || 
@@ -314,6 +325,7 @@ export const DepartmentList = () => {
       )
     : students;
 
+  // Helper function to get department type label
   const getDepartmentTypeLabel = (type: string) => {
     switch (type) {
       case "ug": return "Undergraduate (8 Semesters)";

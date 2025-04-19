@@ -14,14 +14,11 @@ import { Progress } from "@/components/ui/progress";
 import { Download, Upload, Database, RefreshCw, Save, HardDrive } from "lucide-react";
 import { toast } from "sonner";
 
-const mockDepartments = [
-  { id: "1", name: "Computer Science", code: "CS" },
-  { id: "2", name: "Mechanical Engineering", code: "ME" },
-  { id: "3", name: "Electrical Engineering", code: "EE" },
-  { id: "4", name: "Civil Engineering", code: "CE" },
-  { id: "5", name: "M.Tech Computer Science", code: "MCS" },
-];
+// Mock departments data - in a real application, this would come from the database
+// This array is empty as per the requirement to remove all departments
+const mockDepartments = [];
 
+// Semesters data for selection input
 const semesters = [
   { id: "all", name: "All Semesters" },
   { id: "1", name: "Semester 1" },
@@ -37,16 +34,27 @@ const semesters = [
 ];
 
 export const DatabasePanel = () => {
+  // State variables for department and semester selection
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("all");
+  
+  // State variables for tracking export/import progress
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [importProgress, setImportProgress] = useState(0);
+  
+  // State variables for backup/restore functionality
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  
+  // Reference to the file input element for importing files
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Handles the export database operation
+   * In a real application, this would connect to a backend to generate and download the database
+   */
   const handleExport = () => {
     if (!selectedDepartment) {
       toast.error("Please select a department");
@@ -63,8 +71,8 @@ export const DatabasePanel = () => {
           clearInterval(interval);
           setIsExporting(false);
           
-          const deptName = mockDepartments.find(d => d.id === selectedDepartment)?.name;
-          const semName = semesters.find(s => s.id === selectedSemester)?.name;
+          const deptName = mockDepartments.find(d => d.id === selectedDepartment)?.name || "Unknown";
+          const semName = semesters.find(s => s.id === selectedSemester)?.name || "All Semesters";
           toast.success(`Database for ${deptName} - ${semName} exported successfully`);
           
           // In a real application, this would trigger a file download
@@ -79,6 +87,11 @@ export const DatabasePanel = () => {
     }, 150);
   };
 
+  /**
+   * Simulates a file download by creating a temporary CSV file and triggering a download
+   * In a real application, the backend would generate this file
+   * @param filename The name of the file to download
+   */
   const simulateFileDownload = (filename: string) => {
     // Create a dummy CSV content
     const csvContent = "id,name,marks\n1,Student 1,85\n2,Student 2,92\n3,Student 3,78";
@@ -99,6 +112,11 @@ export const DatabasePanel = () => {
     document.body.removeChild(link);
   };
 
+  /**
+   * Handles the import database operation
+   * In a real application, this would upload the file to a backend that would process it
+   * @param e The file input change event
+   */
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -126,8 +144,8 @@ export const DatabasePanel = () => {
           clearInterval(interval);
           setIsImporting(false);
           
-          const deptName = mockDepartments.find(d => d.id === selectedDepartment)?.name;
-          const semName = semesters.find(s => s.id === selectedSemester)?.name;
+          const deptName = mockDepartments.find(d => d.id === selectedDepartment)?.name || "Unknown";
+          const semName = semesters.find(s => s.id === selectedSemester)?.name || "All Semesters";
           toast.success(`Database for ${deptName} - ${semName} imported successfully`);
           
           // In a real application, this would process the uploaded file
@@ -145,6 +163,10 @@ export const DatabasePanel = () => {
     }, 150);
   };
 
+  /**
+   * Handles the create backup operation
+   * In a real application, this would create a full database backup
+   */
   const handleCreateBackup = () => {
     setIsBackingUp(true);
     
@@ -161,6 +183,10 @@ export const DatabasePanel = () => {
     }, 200);
   };
 
+  /**
+   * Handles the restore backup operation
+   * In a real application, this would restore from a selected backup file
+   */
   const handleRestoreBackup = () => {
     // Create a temporary file input for selecting backup file
     const fileInput = document.createElement('input');
@@ -191,6 +217,7 @@ export const DatabasePanel = () => {
 
   return (
     <div className="space-y-8">
+      {/* Database Export & Import Panel */}
       <Card>
         <CardHeader>
           <CardTitle>Database Export & Import</CardTitle>
@@ -285,6 +312,7 @@ export const DatabasePanel = () => {
         </CardContent>
       </Card>
 
+      {/* Database Backup Panel */}
       <Card>
         <CardHeader>
           <CardTitle>Database Backup</CardTitle>

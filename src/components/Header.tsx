@@ -1,13 +1,41 @@
 
 import { ThemeToggle } from "./ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { LogOut, User } from "lucide-react";
 
 export const Header = () => {
+  const { user, logout } = useAuth();
+
   return (
     <header className="bg-background border-b border-border">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">Mark Register</h1>
-          <ThemeToggle />
+          
+          <div className="flex items-center space-x-4">
+            {user && (
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1">
+                  <User className="h-4 w-4 mr-2 text-gray-500" />
+                  <span className="text-sm font-medium">{user.username}</span>
+                  <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
+                    {user.role}
+                  </span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={logout} 
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
