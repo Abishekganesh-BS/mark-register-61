@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MarkEntryForm } from "@/components/MarkEntryForm";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const departments = [
   { id: "1", name: "Computer Science" },
@@ -14,7 +15,6 @@ const departments = [
   { id: "4", name: "Civil" },
 ];
 
-// This would normally come from an API
 const mockSubjectsByDepartment = {
   "1": [
     { code: "CS101", name: "Introduction to Programming", questionPaperCodes: ["QPC001", "QPC002"] },
@@ -27,6 +27,7 @@ const mockSubjectsByDepartment = {
 };
 
 const MarkEntry = () => {
+  const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedQuestionPaperCode, setSelectedQuestionPaperCode] = useState("");
@@ -63,7 +64,17 @@ const MarkEntry = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold mb-6 text-center">Mark Entry System</h2>
+        <div className="mb-4">
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+        <h2 className="text-2xl font-bold mb-6 text-center">Mark Entry</h2>
         
         {step === 1 && (
           <Card className="max-w-2xl mx-auto">

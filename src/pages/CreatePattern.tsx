@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { QuestionPatternForm } from "@/components/QuestionPatternForm";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const departments = [
   { id: "1", name: "Computer Science" },
@@ -16,6 +17,7 @@ const departments = [
 ];
 
 const CreatePattern = () => {
+  const navigate = useNavigate();
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [subjectCode, setSubjectCode] = useState("");
   const [subjectName, setSubjectName] = useState("");
@@ -53,6 +55,16 @@ const CreatePattern = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
         <h2 className="text-2xl font-bold mb-6 text-center">Question Pattern Creation</h2>
         
         {step === 1 && (
