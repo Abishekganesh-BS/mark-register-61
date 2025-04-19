@@ -25,10 +25,6 @@ const Login = () => {
     }
   }
 
-  /**
-   * Handle the login form submission
-   * @param e Form submit event
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -94,13 +90,6 @@ const Login = () => {
             </div>
             <div className="text-sm text-blue-600 hover:underline cursor-pointer">
               Forgot password?
-            </div>
-
-            {/* Helpful login information */}
-            <div className="bg-gray-100 p-3 rounded-md border border-gray-200">
-              <p className="text-sm font-semibold mb-1">Test Credentials:</p>
-              <p className="text-xs">Admin: username = "admin", password = "admin"</p>
-              <p className="text-xs">User: username = "user", password = "user"</p>
             </div>
           </CardContent>
           <CardFooter>

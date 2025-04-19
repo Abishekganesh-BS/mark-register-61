@@ -18,7 +18,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="examatrix-theme">
+  <ThemeProvider defaultTheme="light" storageKey="examatrix-theme">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
