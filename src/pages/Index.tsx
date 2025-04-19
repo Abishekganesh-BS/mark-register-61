@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Index = () => {
   // Get current authenticated user
   const { user } = useAuth();
+  const isAdminOrHOD = user?.role === "admin" || user?.role === "hod";
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -25,11 +26,13 @@ const Index = () => {
             route="/mark-entry"
           />
           
-          <DashboardCard
-            title="Create Question Pattern"
-            description="Create and manage question patterns for departments"
-            route="/create-pattern"
-          />
+          {isAdminOrHOD && (
+            <DashboardCard
+              title="Create Question Pattern"
+              description="Create and manage question patterns for departments"
+              route="/create-pattern"
+            />
+          )}
           
           {user?.role === "admin" && (
             <DashboardCard

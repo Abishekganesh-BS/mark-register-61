@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MarkEntryForm } from "@/components/MarkEntryForm";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Mock departments data
 const mockDepartments = [
@@ -58,6 +59,7 @@ const mockStaffAssignments = [
 
 const MarkEntry = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === "admin";
   
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
@@ -118,8 +120,10 @@ const MarkEntry = () => {
   const handleBack = () => {
     if (isAdmin) {
       setStep(1);
+    } else {
+      // For staff users, navigate back to dashboard
+      navigate('/dashboard');
     }
-    // For staff users, we don't have a back action since step 1 is skipped
   };
 
   return (

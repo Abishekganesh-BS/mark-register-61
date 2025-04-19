@@ -1,9 +1,8 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Define user roles
-export type UserRole = "user" | "admin";
+export type UserRole = "user" | "admin" | "hod";
 
 // User interface for storing authenticated user data
 interface User {
@@ -72,6 +71,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const regularUser: User = { username: "user", role: "user" };
       setUser(regularUser);
       localStorage.setItem("markRegisterUser", JSON.stringify(regularUser));
+      return true;
+    } else if (username === "hod" && password === "hod") {
+      const hodUser: User = { username: "hod", role: "hod" };
+      setUser(hodUser);
+      localStorage.setItem("markRegisterUser", JSON.stringify(hodUser));
       return true;
     }
     
