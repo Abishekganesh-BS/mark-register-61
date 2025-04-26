@@ -45,8 +45,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Function to fetch user profile
   const fetchProfile = async (userId: string) => {
+    // Using type assertion to work around the TypeScript error
+    // since our profiles table exists in the database but TypeScript doesn't know about it yet
     const { data, error } = await supabase
-      .from('profiles')
+      .from('profiles' as any)
       .select('*')
       .eq('id', userId)
       .single();
@@ -56,7 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return;
     }
     
-    setProfile(data);
+    setProfile(data as Profile);
   };
 
   useEffect(() => {
