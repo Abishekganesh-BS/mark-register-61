@@ -5,9 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
+// Define the profile type
+interface Profile {
+  id: string;
+  username: string;
+  role: 'admin' | 'hod' | 'staff';
+  department?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -17,6 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
+  profile: null,
   isAuthenticated: false,
   login: async () => {},
   signup: async () => {},
@@ -30,7 +40,24 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const navigate = useNavigate();
+
+  // Function to fetch user profile
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return;
+    }
+    
+    setProfile(data);
+  };
 
   useEffect(() => {
     // First set up the auth state listener
@@ -38,6 +65,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Fetch profile if user is authenticated
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
 
         if (event === 'SIGNED_IN') {
           navigate('/dashboard');
@@ -51,6 +85,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      // Fetch profile if user is authenticated
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
     });
 
     return () => {
@@ -106,6 +145,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       value={{
         user,
         session,
+        profile,
         isAuthenticated: !!session,
         login,
         signup,

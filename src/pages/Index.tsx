@@ -5,8 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   // Get current authenticated user
-  const { user } = useAuth();
-  const isAdminOrHOD = user?.role === "admin" || user?.role === "hod";
+  const { user, profile } = useAuth();
+  const isAdminOrHOD = profile?.role === "admin" || profile?.role === "hod";
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -15,7 +15,7 @@ const Index = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-md">
-            Logged in as: <span className="font-bold">{user?.username}</span>
+            Logged in as: <span className="font-bold">{profile?.username || user?.email}</span>
           </div>
         </div>
         
@@ -34,7 +34,7 @@ const Index = () => {
             />
           )}
           
-          {user?.role === "admin" && (
+          {profile?.role === "admin" && (
             <DashboardCard
               title="Admin Panel"
               description="Manage departments, users, and database operations"
