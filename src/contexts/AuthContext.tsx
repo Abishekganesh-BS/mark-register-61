@@ -1,112 +1,122 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
-// Define user roles
-export type UserRole = "user" | "admin" | "hod";
-
-// User interface for storing authenticated user data
-interface User {
-  username: string;
-  role: UserRole;
-}
-
-// Authentication context interface
 interface AuthContextType {
   user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-// Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  session: null,
   isAuthenticated: false,
-  login: () => false,
-  logout: () => {},
+  login: async () => {},
+  signup: async () => {},
+  logout: async () => {},
 });
 
-// Auth provider props interface
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-/**
- * Authentication Provider Component
- * Manages the authentication state for the application
- */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // State for the current user
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
 
-  // Check for existing session in localStorage on component mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("markRegisterUser");
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      } catch (error) {
-        // If there's an error parsing, clear the stored user
-        localStorage.removeItem("markRegisterUser");
+    // First set up the auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (event === 'SIGNED_IN') {
+          navigate('/dashboard');
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/login');
+        }
       }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      toast.success('Successfully logged in');
+    } catch (error: any) {
+      toast.error(error.message);
+      throw error;
     }
-  }, []);
+  };
 
-  /**
-   * Login function
-   * Authenticates a user with username and password
-   * In a real application, this would call an API to validate credentials
-   */
-  const login = (username: string, password: string): boolean => {
-    // Check credentials (hardcoded for demo purposes)
-    // In a real app, you would validate against a backend service
-    if (username === "admin" && password === "admin") {
-      const adminUser: User = { username: "admin", role: "admin" };
-      setUser(adminUser);
-      localStorage.setItem("markRegisterUser", JSON.stringify(adminUser));
-      return true;
-    } else if (username === "user" && password === "user") {
-      const regularUser: User = { username: "user", role: "user" };
-      setUser(regularUser);
-      localStorage.setItem("markRegisterUser", JSON.stringify(regularUser));
-      return true;
-    } else if (username === "hod" && password === "hod") {
-      const hodUser: User = { username: "hod", role: "hod" };
-      setUser(hodUser);
-      localStorage.setItem("markRegisterUser", JSON.stringify(hodUser));
-      return true;
+  const signup = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      toast.success('Registration successful! Please check your email to verify your account.');
+    } catch (error: any) {
+      toast.error(error.message);
+      throw error;
     }
-    
-    return false;
   };
 
-  /**
-   * Logout function
-   * Clears the authenticated user and redirects to login page
-   */
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("markRegisterUser");
-    navigate("/login");
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success('Successfully logged out');
+    } catch (error: any) {
+      toast.error(error.message);
+      throw error;
+    }
   };
 
-  // Value provided by the context
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    login,
-    logout
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        isAuthenticated: !!session,
+        login,
+        signup,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-/**
- * Custom hook for using the auth context
- * Provides access to authentication state and functions
- */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
