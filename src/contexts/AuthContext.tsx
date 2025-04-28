@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
-// Define the profile type
 interface Profile {
   id: string;
   username: string;
@@ -18,8 +17,8 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  signup: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -43,12 +42,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const navigate = useNavigate();
 
-  // Function to fetch user profile
   const fetchProfile = async (userId: string) => {
-    // Using type assertion to work around the TypeScript error
-    // since our profiles table exists in the database but TypeScript doesn't know about it yet
     const { data, error } = await supabase
-      .from('profiles' as any)
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -62,13 +58,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    // First set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        // Fetch profile if user is authenticated
         if (session?.user) {
           fetchProfile(session.user.id);
         } else {
@@ -83,12 +77,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     );
 
-    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Fetch profile if user is authenticated
       if (session?.user) {
         fetchProfile(session.user.id);
       }
@@ -99,8 +91,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, [navigate]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
+      // Generate a unique email using the username
+      const email = `${username}@mark-register.internal`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -115,16 +109,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const signup = async (email: string, password: string) => {
+  const signup = async (username: string, password: string) => {
     try {
+      // Generate a unique email using the username
+      const email = `${username}@mark-register.internal`;
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username, // Store username in user metadata
+          },
+        },
       });
 
       if (error) throw error;
       
-      toast.success('Registration successful! Please check your email to verify your account.');
+      toast.success('Registration successful!');
     } catch (error: any) {
       toast.error(error.message);
       throw error;

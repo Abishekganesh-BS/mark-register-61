@@ -26,19 +26,19 @@ const Login = () => {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
+    const username = formData.get("username") as string;
     const password = formData.get("password") as string;
 
     try {
-      if (!email || !password) {
-        toast.error("Please enter both email and password");
+      if (!username || !password) {
+        toast.error("Please enter both username and password");
         return;
       }
 
       if (activeTab === "login") {
-        await login(email, password);
+        await login(username, password);
       } else {
-        await signup(email, password);
+        await signup(username, password);
       }
     } catch (error) {
       // Error is handled in the auth context
@@ -65,13 +65,13 @@ const Login = () => {
             <form onSubmit={handleAuth}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
+                  <Label htmlFor="login-username">Username</Label>
                   <Input
-                    id="login-email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    autoComplete="email"
+                    id="login-username"
+                    name="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    autoComplete="username"
                     required
                   />
                 </div>
@@ -102,13 +102,13 @@ const Login = () => {
             <form onSubmit={handleAuth}>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="register-email">Email</Label>
+                  <Label htmlFor="register-username">Username</Label>
                   <Input
-                    id="register-email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    autoComplete="email"
+                    id="register-username"
+                    name="username"
+                    type="text"
+                    placeholder="Choose a username"
+                    autoComplete="username"
                     required
                   />
                 </div>
