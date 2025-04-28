@@ -32,6 +32,7 @@ const Login = () => {
     try {
       if (!username || !password) {
         toast.error("Please enter both username and password");
+        setIsLoading(false);
         return;
       }
 
@@ -42,6 +43,7 @@ const Login = () => {
       }
     } catch (error) {
       // Error is handled in the auth context
+      console.error("Authentication error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +125,9 @@ const Login = () => {
                     required
                   />
                 </div>
+                <p className="text-xs text-gray-500">
+                  Note: You can use "admin" with password "admin" for admin access
+                </p>
               </CardContent>
               <CardFooter>
                 <Button 

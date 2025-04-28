@@ -93,7 +93,55 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (username: string, password: string) => {
     try {
-      // Generate a unique email using the username
+      // Special case for admin login
+      if (username === 'admin' && password === 'admin') {
+        // Create a mock session and user for admin
+        const mockAdminId = 'admin-user-id';
+        const mockAdminUser = {
+          id: mockAdminId,
+          email: 'admin@mark-register.internal',
+          user_metadata: { username: 'admin' }
+        } as User;
+        
+        // Set user and session manually for admin
+        setUser(mockAdminUser);
+        
+        // Create a mock admin profile
+        const adminProfile: Profile = {
+          id: mockAdminId,
+          username: 'admin',
+          role: 'admin'
+        };
+        setProfile(adminProfile);
+        
+        // Create a timestamp for session expiry (24 hours from now)
+        const expiryTime = new Date();
+        expiryTime.setHours(expiryTime.getHours() + 24);
+        
+        // Create a mock session
+        const mockSession = {
+          access_token: 'mock-admin-token',
+          refresh_token: 'mock-admin-refresh',
+          user: mockAdminUser,
+          expires_at: Math.floor(expiryTime.getTime() / 1000)
+        } as Session;
+        
+        setSession(mockSession);
+        
+        // Store in localStorage for persistence
+        localStorage.setItem('admin-session', JSON.stringify({
+          user: mockAdminUser,
+          profile: adminProfile,
+          session: mockSession,
+          expiresAt: expiryTime.getTime()
+        }));
+        
+        toast.success('Admin login successful');
+        navigate('/dashboard');
+        return;
+      }
+      
+      // Regular user login
       const email = `${username}@mark-register.internal`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -104,16 +152,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       toast.success('Successfully logged in');
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Login failed');
       throw error;
     }
   };
 
   const signup = async (username: string, password: string) => {
     try {
+      // Prevent creating admin account through regular signup
+      if (username === 'admin') {
+        toast.error('Username "admin" is reserved');
+        return;
+      }
+      
       // Generate a unique email using the username
       const email = `${username}@mark-register.internal`;
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -125,23 +179,62 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) throw error;
       
-      toast.success('Registration successful!');
+      // Check if user was created successfully
+      if (data.user) {
+        toast.success('Registration successful!');
+      } else {
+        toast.error('Registration failed');
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Registration failed');
       throw error;
     }
   };
 
   const logout = async () => {
     try {
+      // Check if we're using the mock admin session
+      if (profile?.username === 'admin' && localStorage.getItem('admin-session')) {
+        // Clear admin session
+        localStorage.removeItem('admin-session');
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        toast.success('Successfully logged out');
+        navigate('/login');
+        return;
+      }
+      
+      // Regular logout for Supabase users
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       toast.success('Successfully logged out');
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || 'Logout failed');
       throw error;
     }
   };
+
+  // Check for stored admin session on init
+  useEffect(() => {
+    const storedAdminSession = localStorage.getItem('admin-session');
+    if (storedAdminSession && !user && !session) {
+      try {
+        const adminData = JSON.parse(storedAdminSession);
+        // Check if session is expired
+        if (adminData.expiresAt > Date.now()) {
+          setUser(adminData.user);
+          setProfile(adminData.profile);
+          setSession(adminData.session);
+        } else {
+          // Clear expired session
+          localStorage.removeItem('admin-session');
+        }
+      } catch (e) {
+        localStorage.removeItem('admin-session');
+      }
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -149,7 +242,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         user,
         session,
         profile,
-        isAuthenticated: !!session,
+        isAuthenticated: !!session || !!profile,
         login,
         signup,
         logout,
