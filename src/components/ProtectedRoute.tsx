@@ -1,3 +1,4 @@
+
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -11,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
  * @returns JSX Element - Either the protected route content or a redirect
  */
 const ProtectedRoute = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, profile } = useAuth();
   const location = useLocation();
   
   // If not authenticated, redirect to login
@@ -20,7 +21,7 @@ const ProtectedRoute = () => {
   }
   
   // If trying to access admin page without admin role, redirect to dashboard
-  if (location.pathname === "/admin" && user?.role !== "admin") {
+  if (location.pathname === "/admin" && profile?.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
   
