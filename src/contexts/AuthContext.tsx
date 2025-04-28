@@ -97,11 +97,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (username === 'admin' && password === 'admin') {
         // Create a mock session and user for admin
         const mockAdminId = 'admin-user-id';
+        
+        // Create a proper mock User object that matches the expected type
         const mockAdminUser = {
           id: mockAdminId,
           email: 'admin@mark-register.internal',
-          user_metadata: { username: 'admin' }
-        } as User;
+          user_metadata: { username: 'admin' },
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+          role: '',
+          updated_at: new Date().toISOString(),
+          confirmed_at: new Date().toISOString(),
+          last_sign_in_at: new Date().toISOString(),
+          factors: null,
+          phone: '',
+          phone_confirmed_at: null
+        } as User; // Use type assertion to ensure it matches the User type
         
         // Set user and session manually for admin
         setUser(mockAdminUser);
